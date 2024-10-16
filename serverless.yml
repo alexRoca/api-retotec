@@ -1,0 +1,62 @@
+service: api-retotec
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: us-east-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:Scan
+        - dynamodb:UpdateItem
+      Resource:
+        - arn:aws:dynamodb:us-east-1:905418373768:table/StarWarsTable
+
+resources:
+  Resources:
+    StarWarsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: StarWarsTable
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+functions:
+  getCharacterById:
+    handler: dist/routes/characterRoutes.getCharacterById
+    events:
+      - http:
+          path: /personaje/{id}
+          method: get
+          cors: true
+
+  getAllCharacters:
+    handler: dist/routes/characterRoutes.getAllCharacters
+    events:
+      - http:
+          path: /personajes
+          method: get
+          cors: true
+
+  createCharacter:
+    handler: dist/routes/characterRoutes.createCharacter
+    events:
+      - http:
+          path: /personaje
+          method: post
+          cors: true
+
+  swagger:
+    handler: dist/routes/swaggerRoutes.getSwagger
+    events:
+      - http:
+          path: /docs
+          method: get
+          cors: true
